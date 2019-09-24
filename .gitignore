@@ -12,4 +12,4 @@
 *.out
 
 tmp
-kube-sec-decode-data
+kube-sec-decoder

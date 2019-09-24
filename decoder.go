@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/base64"
+	"fmt"
 	"io"
 	"io/ioutil"
 
@@ -9,12 +10,17 @@ import (
 )
 
 type Decoder struct {
-	raw  []byte
-	data map[interface{}]interface{}
+	raw         []byte
+	data        yaml.MapSlice
+	isHideData  bool
+	replaceData string
 }
 
-func NewDecoder() *Decoder {
-	return &Decoder{}
+func NewDecoder(isHideData bool, replaceData string) *Decoder {
+	return &Decoder{
+		isHideData:  isHideData,
+		replaceData: replaceData,
+	}
 }
 
 func (d *Decoder) loadFile(r io.Reader) error {
@@ -29,13 +35,31 @@ func (d *Decoder) unmarshalYaml() error {
 }
 
 func (d *Decoder) decode() error {
-	for key, val := range d.data["data"].(map[interface{}]interface{}) {
-		dec, err := base64.StdEncoding.DecodeString(val.(string))
-		if err != nil {
-			return err
+	for _, item := range d.data {
+		if item.Key != "data" {
+			continue
 		}
 
-		d.data["data"].(map[interface{}]interface{})[key] = string(dec)
+		yamlVals, ok := item.Value.(yaml.MapSlice)
+		if !ok {
+			return fmt.Errorf("Failed to type assertion: yaml.MapSlice")
+		}
+
+		for i, kv := range yamlVals {
+			if d.isHideData {
+				yamlVals[i].Value = d.replaceData
+			} else {
+				if kv.Value == nil {
+					yamlVals[i].Value = nil
+					continue
+				}
+				dec, err := base64.StdEncoding.DecodeString(kv.Value.(string))
+				if err != nil {
+					return err
+				}
+				yamlVals[i].Value = string(dec)
+			}
+		}
 	}
 
 	return nil
