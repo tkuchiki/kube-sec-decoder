@@ -1,4 +1,4 @@
-module github.com/tkuchiki/kube-sec-decode-data
+module github.com/tkuchiki/kube-sec-decoder
 
 go 1.12
 
