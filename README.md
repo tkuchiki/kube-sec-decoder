@@ -14,6 +14,7 @@ metadata:
 data:
   FOO: Zm9v
   BAR: YmFy
+  BAZ: MTIzNA==
 ```
 
 ```shell
@@ -26,6 +27,7 @@ metadata:
 data:
   FOO: foo
   BAR: bar
+  BAZ: 1234
 ```
 
 ### Hide .data.*
@@ -40,6 +42,7 @@ metadata:
 data:
   FOO: <secret>
   BAR: <secret>
+  BAZ: <secret>
 
 $ cat test.yaml| kube-sec-decoder --hide-data --replace-data xxx
 apiVersion: v1
@@ -50,4 +53,5 @@ metadata:
 data:
   FOO: xxx
   BAR: xxx
+  BAZ: xxx
 ```
