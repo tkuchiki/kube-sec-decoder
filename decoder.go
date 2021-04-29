@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"strconv"
 
 	"gopkg.in/yaml.v2"
 )
@@ -57,7 +58,28 @@ func (d *Decoder) decode() error {
 				if err != nil {
 					return err
 				}
-				yamlVals[i].Value = string(dec)
+
+				decstr := string(dec)
+
+				i64, err := strconv.ParseInt(decstr, 10, 64)
+				if err == nil {
+					yamlVals[i].Value = i64
+					continue
+				}
+
+				ui, err := strconv.ParseUint(decstr, 10, 64)
+				if err == nil {
+					yamlVals[i].Value = ui
+					continue
+				}
+
+				f, err := strconv.ParseFloat(decstr, 64)
+				if err == nil {
+					yamlVals[i].Value = f
+					continue
+				}
+
+				yamlVals[i].Value = decstr
 			}
 		}
 	}
